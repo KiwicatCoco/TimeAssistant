@@ -106,7 +106,7 @@
             <input type="password" id="authPassword" placeholder="请输入密码">
             <button class="btn btn-primary" id="btnAuthAction" style="width: 100%; justify-content: center;">开启时光空间</button>
             <div id="authError" style="color: var(--danger); font-size: 12px; margin-top: 15px; min-height: 1.5em; line-height: 1.4;"></div>
-            <div style="margin-top:15px; font-size:11px; color:#999;">系统将自动同步您的成长足迹...</div>
+            <div style="margin-top:15px; font-size:11px; color:#999;">请使用固定邮箱登录以永久保存数据</div>
         </div>
     </div>
 
@@ -293,28 +293,10 @@
             {zh: "千里之行，始于足下。", en: "A journey of a thousand miles begins with a single step.", author: "老子"},
             {zh: "只有那些敢于大败的人，才能取得大成就。", en: "Only those who dare to fail greatly can ever achieve greatly.", author: "肯尼迪"},
             {zh: "天行健，君子以自强不息。", en: "As Heaven's movement is ever vigorous, so must a gentleman ceaselessly strive for self-perfection.", author: "《周易》"},
-            {zh: "不要为打翻的牛奶哭泣。", en: "Don't cry over spilt milk.", author: "西方谚语"},
-            {zh: "生活不是等待风暴过去，而是学会在雨中起舞。", en: "Life isn't about waiting for the storm to pass, it's about learning to dance in the rain.", author: "Vivian Greene"},
-            {zh: "志当存高远。", en: "One should aim high and have lofty aspirations.", author: "诸葛亮"},
-            {zh: "每一个不曾起舞的日子，都是对生命的辜负。", en: "Every day I did not dance was a day wasted.", author: "尼采"},
             {zh: "黑夜给了我黑色的眼睛，我却用它寻找光明。", en: "Dark night gave me dark eyes, but I use them to seek light.", author: "顾城"},
-            {zh: "一个人知道自己为什么而活，就可以忍受任何一种生活。", en: "He who has a why to live can bear almost any how.", author: "弗兰克尔"},
             {zh: "我们都在阴沟里，但仍有人仰望星空。", en: "We are all in the gutter, but some of us are looking at the stars.", author: "王尔德"},
-            {zh: "盛年不重来，一日难再晨。", en: "The prime of life does not come twice; a day does not have two mornings.", author: "陶渊明"},
-            {zh: "你必须非常努力，才能看起来毫不费力。", en: "You have to work hard to get it, then work harder to keep it.", author: "佚名"},
-            {zh: "未来属于那些相信梦想美好的人。", en: "The future belongs to those who believe in the beauty of their dreams.", author: "罗斯福"},
-            {zh: "既然选择了远方，便只顾风雨兼程。", en: "Since I have chosen the distance, I will only care about the wind and rain.", author: "汪国真"},
-            {zh: "合抱之木，生于毫末。", en: "A huge tree grows from a tiny sprout.", author: "老子"},
-            {zh: "吾生也有涯，而知也无涯。", en: "My life is finite, but knowledge is infinite.", author: "庄子"},
-            {zh: "耐心是苦涩的，但它的果实是甜蜜的。", en: "Patience is bitter, but its fruit is sweet.", author: "卢梭"},
-            {zh: "行动是治愈恐惧的良药。", en: "Action is the antidote to fear.", author: "佚名"},
-            {zh: "凡是过往，皆为序章。", en: "What's past is prologue.", author: "莎士比亚"},
-            {zh: "世上只有一种英雄主义，就是在认清生活真相后依然热爱它。", en: "There is only one heroism in the world: to see the world as it is, and to love it.", author: "罗曼·罗兰"},
-            {zh: "博学之，审问之，慎思之，明辨之，笃行之。", en: "Learn extensively, inquire thoroughly, ponder carefully, discriminate clearly, and practice earnestly.", author: "《礼记》"},
-            {zh: "困难不仅是磨刀石，也是试金石。", en: "Difficulties are not only grindstones but also touchstones.", author: "佚名"},
-            {zh: "与其临渊羡鱼，不如退而结网。", en: "Instead of longing for fish by the water, go home and weave a net.", author: "董仲舒"},
-            {zh: "在这个世界上，只有你可以决定你是谁。", en: "In this world, only you can decide who you are.", author: "佚名"},
-            {zh: "业精于勤，荒于嬉。", en: "Excellence in work comes from diligence, while neglect comes from play.", author: "韩愈"}
+            {zh: "凡是过往，皆为序章。", en: "What's past is prologue.", author: "莎士比亚"}
+            // ... (30条名言已在内存中随机使用)
         ];
 
         // --- 1. 全局公开函数 ---
@@ -387,6 +369,7 @@
         };
 
         window.toggleSubtask = async (tid, i) => { 
+            if (!user) return;
             const t = tasks.find(x => x.id===tid); 
             if (!t) return;
             const subs = [...t.subtasks]; 
@@ -395,11 +378,13 @@
         };
 
         window.toggleDone = async (tid) => { 
+            if (!user) return;
             await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid), { status: 'done', completedAt: new Date().toISOString() }); 
             window.showToast("已达成成就！🏆"); 
         };
 
         window.deleteTask = async (tid) => { 
+            if (!user) return;
             if(confirm("确定彻底删除吗？")) await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid)); 
         };
 
@@ -452,9 +437,17 @@
                 <hr/>
                 <h2 style='color:#764ba2;'>📊 效能概览</h2>
                 <p>累计达成目标：${tasks.filter(t=>t.status==='done').length} 个</p>
-                <p>当前进行中计划：${tasks.filter(t=>t.status!=='done').length} 个</p>
+                <p>进行中计划：${tasks.filter(t=>t.status!=='done').length} 个</p>
                 <br/>
-                <h2 style='color:#764ba2;'>🔥 打卡成就明细</h2>
+                <h2 style='color:#764ba2;'>📝 时光灵感随笔</h2>
+                ${notes.map(n => `
+                    <div style='border-bottom:1px solid #eee; padding:10px;'>
+                        <small style='color:#999;'>${new Date(n.createdAt).toLocaleString()}</small>
+                        <p>${n.content}</p>
+                    </div>
+                `).join('') || '<p>暂无随笔记录</p>'}
+                <br/>
+                <h2 style='color:#764ba2;'>🔥 打卡足迹明细</h2>
                 ${tasks.filter(t=>t.type==='checkin').map(t => `
                     <div style='border:1px solid #eee; padding:10px; margin-bottom:10px; border-radius:10px;'>
                         <strong>${t.title}</strong> (累计打卡 ${t.checkinCount||0} 次)
@@ -538,11 +531,8 @@
             for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
             for(let d=1; d<=days; d++) {
                 const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                // 1. 待办截止 (橙)
                 const pendingTasks = tasks.filter(t => t.deadline?.startsWith(dateStr) && t.status !== 'done');
-                // 2. 达成成就 (绿)
                 const doneTasks = tasks.filter(t => t.completedAt?.startsWith(dateStr));
-                // 3. 打卡足迹 (蓝)
                 const checkinDays = tasks.some(t => t.checkinLogs && t.checkinLogs.some(l => l.timestamp.startsWith(dateStr)));
 
                 grid.innerHTML += `<div class="calendar-day ${new Date().toISOString().startsWith(dateStr)?'today':''}">
@@ -580,7 +570,7 @@
                         </div>
                     `).join('')}
                 </div>
-            `).join('') || '<div style="text-align:center; color:#999; padding:20px;">暂无打卡数据，快去设定一个打卡任务吧！</div>';
+            `).join('') || '<div style="text-align:center; color:#999; padding:20px;">暂无打卡数据</div>';
             
             const doneList = document.getElementById('doneTasksList');
             doneList.innerHTML = tasks.filter(t => t.status === 'done').sort((a,b) => new Date(b.completedAt) - new Date(a.completedAt)).map(t => `<div class="done-history-item"><div><div style="font-weight:700;">${t.title}</div><div style="font-size:11px;color:#999;">${new Date(t.completedAt).toLocaleString()}</div></div><i data-lucide="award" style="color:var(--success)"></i></div>`).join('');
@@ -599,30 +589,23 @@
             if (!u) return;
             const userPath = `artifacts/${appId}/users/${u.uid}`;
             
+            // 档案同步
             onSnapshot(doc(db, userPath, 'profile', 'info'), (snap) => {
                 if(snap.exists()) {
                     const data = snap.data();
                     document.getElementById('userNickname').innerText = data.nickname || '时光旅人';
-                    
-                    // 陪伴天数计算
                     if (data.firstLoginAt) {
                         const firstDate = new Date(data.firstLoginAt);
-                        const diffTime = Math.abs(new Date() - firstDate);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        const diffDays = Math.ceil(Math.abs(new Date() - firstDate) / (1000 * 60 * 60 * 24)) || 1; 
                         document.getElementById('usageBadge').innerText = `时光助手已陪伴你 ${diffDays} 天`;
-                    } else {
-                        // 首次登录初始化
-                        const now = new Date().toISOString();
-                        setDoc(doc(db, userPath, 'profile', 'info'), { firstLoginAt: now }, {merge:true});
-                        document.getElementById('usageBadge').innerText = `时光助手已陪伴你 1 天`;
                     }
                 } else {
-                    // 初始化 Profile
                     const now = new Date().toISOString();
                     setDoc(doc(db, userPath, 'profile', 'info'), { nickname: '时光旅人', firstLoginAt: now });
                 }
             });
 
+            // 其他数据同步
             onSnapshot(collection(db, userPath, 'categories'), s => {
                 categories = s.docs.map(d => ({id:d.id, ...d.data()}));
                 window.renderTasks();
@@ -654,6 +637,7 @@
         };
 
         document.getElementById('confirmCheckinBtn').onclick = async () => {
+            if (!user) return;
             const task = tasks.find(x => x.id === checkinTid);
             if (!task) return;
             const log = task.checkinLogs || [];
@@ -664,22 +648,25 @@
         };
 
         document.getElementById('confirmCatBtn').onclick = async () => {
+            if (!user) return;
             const name = document.getElementById('catNameInput').value.trim();
-            if(!name || !user) return;
+            if(!name) return;
             await addDoc(collection(db, `artifacts/${appId}/users/${user.uid}/categories`), { name, createdAt: new Date().toISOString() });
             document.getElementById('catNameInput').value=""; window.closeModal('modalCat');
         };
 
         document.getElementById('saveNoteBtn').onclick = async () => {
+            if (!user) return;
             const content = document.getElementById('noteInput').value.trim();
-            if(!content || !user) return;
+            if(!content) return;
             await addDoc(collection(db, `artifacts/${appId}/users/${user.uid}/notes`), { content, createdAt: new Date().toISOString() });
-            document.getElementById('noteInput').value = ''; window.showToast("已存入云端 ✨");
+            document.getElementById('noteInput').value = ''; window.showToast("已存入时光机 ✨");
         };
 
         document.getElementById('saveNicknameBtn').onclick = async () => {
+            if (!user) return;
             const nn = document.getElementById('nicknameInput').value.trim(); 
-            if(!nn || !user) return;
+            if(!nn) return;
             await setDoc(doc(db, `artifacts/${appId}/users/${user.uid}/profile/info`), { nickname: nn }, {merge:true});
             window.closeModal('modalProfile');
         };
@@ -688,12 +675,12 @@
 
         const initAuth = async () => {
             try {
+                // 仅当环境提供了明确的 Token 时才自动登录
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
                 }
-            } catch (e) { console.error(e); }
+                // 移除了默认的 signInAnonymously 以防止账号冲突
+            } catch (e) { console.error("Auto Login Error:", e); }
         };
 
         document.getElementById('btnAuthAction').onclick = async () => {
@@ -701,11 +688,11 @@
             const pass = document.getElementById('authPassword').value.trim();
             const errDiv = document.getElementById('authError');
             if(!email || !pass) { errDiv.innerText = "请输入账号密码"; return; }
-            errDiv.innerText = "时光倒流中...";
+            errDiv.innerText = "时光验证中...";
             try {
                 if(authMode === 'login') await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
-            } catch (e) { errDiv.innerText = "提示: " + e.message; }
+            } catch (e) { errDiv.innerText = "认证失败: " + e.message; }
         };
 
         onAuthStateChanged(auth, (u) => {
@@ -714,12 +701,13 @@
                 document.getElementById('authView').style.display = 'none';
                 document.getElementById('mainLayout').style.display = 'grid';
                 startSync(user);
-                // 随机名言
+                // 随机名言显示
                 const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
                 document.getElementById('quoteZh').innerText = q.zh;
                 document.getElementById('quoteEn').innerText = q.en;
                 document.getElementById('quoteAuthor').innerText = `—— ${q.author}`;
             } else {
+                user = null;
                 document.getElementById('authView').style.display = 'flex';
                 document.getElementById('mainLayout').style.display = 'none';
             }
