@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>时光助手 v4.2 - 终极修复版</title>
+    <title>时光助手 v4.4 - 终极稳定修复版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -19,7 +19,7 @@
         #authView { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
         .login-card { background: white; width: 90%; max-width: 420px; padding: 40px; border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
         .auth-toggle { display: flex; background: #f0f2f5; border-radius: 12px; padding: 4px; margin-bottom: 25px; }
-        .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 10px; font-size: 14px; font-weight: 600; color: #666; transition: 0.3s; }
+        .auth-tab { flex: 1; padding: 8px; cursor: pointer; border-radius: 10px; font-size: 14px; font-weight: 600; color: #666; transition: 0.3s; }
         .auth-tab.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         /* 主布局 */
@@ -30,47 +30,45 @@
         .nav-item.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
         .main-content { overflow-y: auto; padding: 30px; scroll-behavior: smooth; background: #fbfcfe; }
 
-        /* 顶部看板 */
+        /* 看板卡片区域 */
         .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .info-box { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .quote-card { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; display: flex; flex-direction: column; justify-content: center; min-height: 140px; text-align: left; padding: 25px; border-radius: 24px; }
         .stats-box { border-top: 4px solid var(--primary); text-align: center; }
 
-        /* 月历 */
+        /* 月历回归 */
         .calendar-section { background: white; border-radius: 24px; padding: 20px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
         .calendar-day { min-height: 85px; border-radius: 12px; border: 1px solid #f8f9fa; padding: 8px; font-size: 11px; transition: 0.2s; background: #fff; position: relative; }
         .calendar-day.today { border: 2px solid var(--primary); background: #f5f7ff; }
         .cal-event { font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-top: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #ffebeb; color: #d63031; border: 1px solid #ffcccc; display: block; }
 
-        /* 看板卡片 */
+        /* 任务面板 */
         .board-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; }
         .category-box { background: #f8f9fc; border-radius: 24px; padding: 20px; border: 1px solid #eef2f7; }
         .task-card { background: white; border-radius: 16px; margin-bottom: 12px; border-left: 5px solid #cbd5e0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; overflow: hidden; }
-        .task-card.highlight { border-color: var(--primary); transform: scale(1.02); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2); }
+        .task-card.highlight { border-color: var(--primary); transform: scale(1.02); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
         
         .task-header { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .task-title { font-weight: 700; font-size: 14px; flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .task-body { display: none; padding: 0 16px 16px; border-top: 1px solid #f1f5f9; }
         .task-card.expanded .task-body { display: block; }
 
-        /* 子任务 */
+        /* 子任务与进度条 */
         .subtask-item { display: flex; align-items: center; gap: 10px; background: #f9fafb; padding: 10px; border-radius: 10px; font-size: 13px; margin-bottom: 6px; }
         .subtask-item input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+        .progress-container { height: 6px; background: #eee; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); transition: width 0.4s ease; }
 
-        /* 打卡详情 */
-        .checkin-detail-card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border-left: 6px solid var(--info); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .checkin-log-item { background: #f8f9fc; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; }
+        /* 弹窗样式 */
+        .modal-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; }
+        .modal { background: white; width: 90%; max-width: 480px; padding: 32px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
-        /* 按钮与提示 */
+        /* 按钮 */
         .btn { padding: 12px 24px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
         .btn-ghost { background: transparent; color: #777; }
         input, textarea, select { width: 100%; padding: 14px; border: 2px solid #f1f3f5; border-radius: 14px; outline: none; margin-bottom: 15px; font-family: inherit; }
-        input:focus { border-color: var(--primary); background: white; }
-
-        .modal-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; }
-        .modal { background: white; width: 90%; max-width: 480px; padding: 32px; border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 50px; z-index: 10001; display: none; font-size: 14px; }
         .hidden { display: none !important; }
@@ -86,15 +84,15 @@
 </head>
 <body>
 
-    <!-- 1. 登录视图 -->
+    <!-- 1. 登录认证视图 -->
     <div id="authView">
         <div class="login-card">
-            <h2 style="margin-bottom: 20px; color: var(--primary);">⏰ 时光助手 v4.2</h2>
+            <h2 style="margin-bottom: 20px; color: var(--primary);">⏰ 时光助手 v4.4</h2>
             <div class="auth-toggle">
-                <div class="auth-tab active" id="tabLogin" onclick="window.setAuthMode('login')">登录</div>
-                <div class="auth-tab" id="tabRegister" onclick="window.setAuthMode('register')">注册</div>
+                <div class="auth-tab active" id="tabLogin" onclick="window.setAuthMode('login')">邮箱登录</div>
+                <div class="auth-tab" id="tabRegister" onclick="window.setAuthMode('register')">新用户注册</div>
             </div>
-            <input type="email" id="authEmail" placeholder="请输入电子邮箱地址">
+            <input type="email" id="authEmail" placeholder="请输入您的电子邮箱">
             <input type="password" id="authPassword" placeholder="请输入密码">
             <button class="btn btn-primary" id="btnAuthAction" style="width: 100%; justify-content: center;">开启时光空间</button>
             <div style="margin-top: 15px;"><span id="btnForgotPass" style="font-size: 12px; color: #999; cursor: pointer; text-decoration: underline;">找回我的密码</span></div>
@@ -113,7 +111,7 @@
             <div style="margin-top: auto; padding: 16px; border-top: 1px solid #f1f5f9;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
                     <div id="userNickname" style="font-size: 15px; font-weight:700;">时光旅人</div>
-                    <i data-lucide="user-cog" style="width:16px; cursor:pointer; color:#999;" onclick="window.openModal('modalProfile')"></i>
+                    <i data-lucide="settings" style="width:16px; cursor:pointer; color:#999;" onclick="window.openModal('modalProfile')"></i>
                 </div>
                 <button class="btn btn-ghost" onclick="window.logout()" style="width: 100%; color: var(--danger);"><i data-lucide="log-out"></i> 退出系统</button>
             </div>
@@ -139,7 +137,7 @@
             <div id="panel-tasks">
                 <section class="calendar-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 id="calMonth" style="font-weight: 800; color:var(--primary);"></h3>
+                        <h3 id="calMonth" style="font-weight: 800; color:var(--primary);">2026年 2月</h3>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn btn-ghost" onclick="window.changeMonth(-1)"><i data-lucide="chevron-left"></i></button>
                             <button class="btn btn-ghost" onclick="window.changeMonth(1)"><i data-lucide="chevron-right"></i></button>
@@ -147,17 +145,16 @@
                     </div>
                     <div class="calendar-grid" id="calendarGrid"></div>
                 </section>
-
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="font-size: 22px; font-weight: 800;">当前计划看板</h2>
-                    <button class="btn btn-primary" onclick="window.openModal('modalCat')"><i data-lucide="folder-plus"></i> 新建分类</button>
+                    <h2 style="font-size: 22px; font-weight: 800;">工作计划看板</h2>
+                    <button class="btn btn-primary" onclick="window.openModal('modalCat')"><i data-lucide="plus"></i> 新建分类</button>
                 </div>
                 <div id="boardGrid" class="board-grid"></div>
             </div>
 
             <div id="panel-notes" class="hidden">
                 <div style="max-width: 800px; margin: 0 auto;">
-                    <textarea id="noteInput" placeholder="在此记录今日复盘、灵感或想法..." style="height: 150px; border-radius: 20px;"></textarea>
+                    <textarea id="noteInput" placeholder="在此记录今日复盘、灵感或时光感悟..." style="height: 150px; border-radius: 20px;"></textarea>
                     <button class="btn btn-primary" id="saveNoteBtn"><i data-lucide="save"></i> 存入时光机</button>
                     <div id="notesHistory" style="margin-top: 40px;"></div>
                 </div>
@@ -166,7 +163,7 @@
             <div id="panel-stats" class="hidden">
                 <div style="background: white; padding: 30px; border-radius: 24px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                        <h2>效能回顾回顾</h2>
+                        <h2>效能趋势回顾</h2>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn btn-ghost" onclick="window.exportExcel()" style="border:1px solid #eee;"><i data-lucide="table"></i> Excel</button>
                             <button class="btn btn-ghost" onclick="window.exportWord()" style="border:1px solid #eee;"><i data-lucide="file-text"></i> Word</button>
@@ -174,18 +171,18 @@
                     </div>
                     <div style="height: 350px;"><canvas id="mainChart"></canvas></div>
                 </div>
-                <h3 style="margin-bottom: 15px;">打卡详细历史记录 🔥</h3>
+                <h3 style="margin-bottom: 15px;">打卡详细记录 🔥</h3>
                 <div id="checkinDetailList"></div>
-                <h3 style="margin: 30px 0 15px;">成就达成明细 ✅</h3>
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">成就达成明细 ✅</h3>
                 <div id="doneTasksList"></div>
             </div>
         </main>
     </div>
 
-    <!-- 弹窗部分 -->
+    <!-- 弹窗集 -->
     <div id="modalProfile" class="modal-wrap">
         <div class="modal">
-            <h3>个人资料设置</h3>
+            <h3>资料设置</h3>
             <input type="text" id="nicknameInput" placeholder="请输入新昵称">
             <button class="btn btn-primary" id="saveNicknameBtn" style="width:100%; justify-content:center;">保存修改</button>
             <button class="btn btn-ghost" onclick="window.closeModal('modalProfile')" style="width:100%; margin-top:10px;">取消</button>
@@ -195,7 +192,7 @@
     <div id="modalCat" class="modal-wrap">
         <div class="modal">
             <h3 style="margin-bottom: 15px;">新建分类</h3>
-            <input type="text" id="catNameInput" placeholder="分类名称，如：深度学习">
+            <input type="text" id="catNameInput" placeholder="分类名称">
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-ghost" style="flex:1" onclick="window.closeModal('modalCat')">取消</button>
                 <button class="btn btn-primary" id="confirmCatBtn" style="flex:1; justify-content:center;">创建</button>
@@ -206,7 +203,7 @@
     <div id="modalTask" class="modal-wrap">
         <div class="modal">
             <h3 id="taskModalTitle">任务详情</h3>
-            <input type="text" id="taskTitleInput" placeholder="要做什么？">
+            <input type="text" id="taskTitleInput" placeholder="你要完成什么目标？">
             <textarea id="taskDescInput" placeholder="补充详细说明（可选）..." style="height: 80px;"></textarea>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <select id="taskPriorityInput">
@@ -223,7 +220,7 @@
             <input type="datetime-local" id="taskDeadlineInput">
             <div id="subtaskArea">
                 <div id="subtaskInputs"></div>
-                <button class="btn btn-ghost" onclick="window.addSubtaskRow()" style="width:100%; border: 1px dashed #ddd; margin-top: 5px;">+ 增加拆解步骤</button>
+                <button class="btn btn-ghost" onclick="window.addSubtaskRow()" style="width:100%; border: 1px dashed #ddd; margin-top: 5px;">+ 增加子任务步骤</button>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 24px;">
                 <button class="btn btn-ghost" style="flex:1" onclick="window.closeModal('modalTask')">取消</button>
@@ -236,8 +233,8 @@
         <div class="modal">
             <h3>打卡记录</h3>
             <p id="checkinTTitle" style="color: #666; font-size: 13px; margin: 10px 0; font-weight: 600;"></p>
-            <textarea id="checkinNoteInput" placeholder="记录这一刻的随感、心得或成果..." style="height: 120px;"></textarea>
-            <button class="btn btn-primary" id="confirmCheckinBtn" style="width:100%; justify-content:center;">提交打卡</button>
+            <textarea id="checkinNoteInput" placeholder="写下此刻心得..." style="height: 120px;"></textarea>
+            <button class="btn btn-primary" id="confirmCheckinBtn" style="width:100%; justify-content:center;">立即提交打卡</button>
             <button class="btn btn-ghost" onclick="window.closeModal('modalCheckin')" style="width:100%; margin-top:10px;">取消</button>
         </div>
     </div>
@@ -250,7 +247,7 @@
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
-        // Firebase 初始化
+        // Firebase 配置与稳定 AppID (路径固化防丢失)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB-VTeLw0nrQOeP7T4JmT1h7qJY45V5GFM",
@@ -263,7 +260,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'time-v36-pro';
+        
+        // 关键修复：固化路径，防止版本升级导致旧数据不可见
+        const appId = 'time-assistant-stable-production';
 
         let user, categories = [], tasks = [], authMode = 'login', calDate = new Date();
         let activeCatId, editingTid, checkinTid;
@@ -278,7 +277,7 @@
             {zh: "昨日已逝，今日是礼。", en: "Yesterday is history, today is a gift.", author: "谚语"}
         ];
 
-        // --- 核心挂载：将交互函数立即绑定到全局 ---
+        // --- 核心修复：函数全局强制挂载 ---
         window.openModal = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'flex'; };
         window.closeModal = (id) => { const el = document.getElementById(id); if(el) el.style.display = 'none'; };
         
@@ -286,8 +285,8 @@
             if(!el) return;
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             el.classList.add('active');
-            ['tasks', 'notes', 'stats'].forEach(p => { document.getElementById(`panel-${p}`).classList.add('hidden'); });
-            document.getElementById(`panel-${id}`).classList.remove('hidden');
+            ['tasks', 'notes', 'stats'].forEach(p => { const panel = document.getElementById(`panel-${p}`); if(panel) panel.classList.add('hidden'); });
+            const targetPanel = document.getElementById(`panel-${id}`); if(targetPanel) targetPanel.classList.remove('hidden');
             if(id === 'notes') window.renderNotesList();
             if(id === 'stats') { window.renderChart(); window.renderCheckinDetail(); window.renderDoneDetail(); }
         };
@@ -296,7 +295,7 @@
             authMode = mode;
             document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
             document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
-            document.getElementById('btnAuthAction').innerText = mode === 'login' ? '开启时光空间' : '创建新账号';
+            document.getElementById('btnAuthAction').innerText = mode === 'login' ? '开启时光空间' : '创建固定账号';
             document.getElementById('authError').innerText = "";
         };
 
@@ -311,14 +310,14 @@
         };
 
         window.toggleTaskTypeUI = () => {
-            const type = document.getElementById('taskTypeInput').value;
+            const typeInput = document.getElementById('taskTypeInput');
             const area = document.getElementById('subtaskArea');
-            if(area) area.style.display = type === 'normal' ? 'block' : 'none';
+            if(typeInput && area) area.style.display = typeInput.value === 'normal' ? 'block' : 'none';
         };
 
         window.addSubtaskRow = (v="") => {
             const div = document.createElement('div'); div.style.display="flex"; div.style.gap="8px"; div.style.marginBottom="10px";
-            div.innerHTML = `<input type="text" class="st-input" value="${v}" style="margin:0" placeholder="步骤内容..."><i data-lucide="trash-2" style="width:18px; cursor:pointer; color:var(--danger); margin-top:12px;" onclick="this.parentElement.remove()"></i>`;
+            div.innerHTML = `<input type="text" class="st-input" value="${v}" style="margin:0" placeholder="拆解步骤..."><i data-lucide="trash-2" style="width:18px; cursor:pointer; color:var(--danger); margin-top:12px;" onclick="this.parentElement.remove()"></i>`;
             document.getElementById('subtaskInputs').appendChild(div);
             lucide.createIcons();
         };
@@ -332,12 +331,9 @@
             if(el) { el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('highlight'); setTimeout(()=>el.classList.remove('highlight'), 2000); }
         };
 
-        window.toggleTaskBody = (tid) => {
-            expandedTasks.has(tid) ? expandedTasks.delete(tid) : expandedTasks.add(tid);
-            renderTasks();
-        };
-
+        window.toggleTaskBody = (tid) => { expandedTasks.has(tid) ? expandedTasks.delete(tid) : expandedTasks.add(tid); renderTasks(); };
         window.expandCat = (cid) => { catExpanded.add(cid); renderTasks(); };
+        window.toggleCheckinFold = (tid) => { checkinFoldState.set(tid, !checkinFoldState.get(tid)); window.renderCheckinDetail(); };
 
         const showToast = (m) => {
             const t = document.getElementById('toast');
@@ -345,7 +341,7 @@
             setTimeout(() => { if(t) t.style.display = 'none'; }, 3000);
         };
 
-        // --- 核心业务渲染 ---
+        // --- 业务渲染实现 ---
         window.renderNotesList = () => {
             if(!user) return;
             const path = `artifacts/${appId}/users/${user.uid}/notes`;
@@ -383,8 +379,6 @@
             list.innerHTML = tasks.filter(t => t.status === 'done').sort((a,b) => new Date(b.completedAt) - new Date(a.completedAt)).map(t => `<div class="done-history-item"><div><div style="font-weight:700;">${t.title}</div><div style="font-size:12px; color:#666; margin-top:4px;">${t.description||'无描述'}</div></div><div style="text-align:right;"><div style="font-size:11px; color:var(--success); font-weight:700;">达成</div><div style="font-size:10px; color:#999;">${new Date(t.completedAt).toLocaleString()}</div></div></div>`).join('') || '<div style="text-align:center; color:#999; padding: 20px;">无成就记录</div>';
         };
 
-        window.toggleCheckinFold = (tid) => { checkinFoldState.set(tid, !checkinFoldState.get(tid)); window.renderCheckinDetail(); };
-
         const renderTasks = () => {
             const grid = document.getElementById('boardGrid'); if(!grid) return; grid.innerHTML = '';
             categories.forEach(cat => {
@@ -398,7 +392,7 @@
                 box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
                     <h4 style="font-weight:800; color:var(--primary);">${cat.name}</h4><i data-lucide="plus-circle" style="cursor:pointer; color:var(--primary);" onclick="window.openTaskModal('${cat.id}')"></i></div>
                     <div>${visible.map(t => renderTaskCard(t)).join('')}</div>
-                    ${!isCatExpanded && catTasks.length > 3 ? `<button class="fold-btn" style="width:100%; padding:10px; border:none; background:#eaedf2; border-radius:12px; color:#666; cursor:pointer; font-weight:700;" onclick="window.expandCat('${cat.id}')">展开剩余待办</button>` : ''}`;
+                    ${!isCatExpanded && catTasks.length > 3 ? `<button class="fold-btn" style="width:100%; padding:10px; border:none; background:#eaedf2; border-radius:12px; color:#666; cursor:pointer; font-weight:700;" onclick="window.expandCat('${cat.id}')">显示剩余待办</button>` : ''}`;
                 grid.appendChild(box);
             });
             lucide.createIcons();
@@ -423,15 +417,15 @@
                 <div class="task-body">
                     <div style="font-size:12px;color:#666;line-height:1.4;margin-bottom:12px;">${t.description || '无详细描述'}</div>
                     ${!isCheckin && subs.length ? `
-                        <div style="height:6px; background:#eee; border-radius:2px; margin:8px 0;"><div style="width:${progress}%; height:100%; background:var(--success); border-radius:2px;"></div></div>
-                        <div style="margin-top:10px; margin-bottom: 10px;">
+                        <div class="progress-container"><div class="progress-fill" style="width:${progress}%;"></div></div>
+                        <div style="margin-top:10px; margin-bottom: 15px;">
                             ${subs.map((s, i) => `<div class="subtask-item"><input type="checkbox" ${s.completed?'checked':''} onchange="window.toggleSubtask('${t.id}',${i})"><span>${s.text}</span></div>`).join('')}
                         </div>
                     ` : ''}
                     <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
-                        ${isCheckin ? `<button class="btn btn-primary" style="padding:6px 12px; font-size:11px;" onclick="window.openCheckin('${t.id}')">记录打卡 (${t.checkinCount||0})</button>` : ''}
-                        <button class="btn btn-ghost" style="padding:4px; background:#f1f5f9; border-radius:10px;" onclick="window.editTask('${t.id}')"><i data-lucide="edit-3" style="width:14px;"></i></button>
-                        <button class="btn btn-ghost" style="padding:4px; background:#f1f5f9; border-radius:10px;" onclick="window.toggleDone('${t.id}')"><i data-lucide="check-circle" style="width:14px; color:var(--success);"></i></button>
+                        ${isCheckin ? `<button class="btn btn-primary" style="padding:6px 12px; font-size:11px;" onclick="window.openCheckin('${t.id}')">打卡 (${t.checkinCount||0})</button>` : ''}
+                        <button class="btn btn-ghost" style="padding:4px; background:#f1f5f9; border-radius:10px;" onclick="window.editTask('${t.id}')"><i data-lucide="edit-2" style="width:14px;"></i></button>
+                        <button class="btn btn-ghost" style="padding:4px; background:#f1f5f9; border-radius:10px;" onclick="window.toggleDone('${t.id}')"><i data-lucide="check" style="width:14px;"></i></button>
                         <button class="btn btn-ghost" style="padding:4px; background:#f1f5f9; border-radius:10px; color:var(--danger);" onclick="window.deleteTask('${t.id}')"><i data-lucide="trash-2" style="width:14px;"></i></button>
                     </div>
                 </div></div>`;
@@ -440,8 +434,7 @@
         const renderCalendar = () => {
             const grid = document.getElementById('calendarGrid'); if(!grid) return; grid.innerHTML = '';
             const y = calDate.getFullYear(), m = calDate.getMonth();
-            const monthText = document.getElementById('calMonth');
-            if(monthText) monthText.innerText = `${y}年 ${m+1}月`;
+            const monthText = document.getElementById('calMonth'); if(monthText) monthText.innerText = `${y}年 ${m+1}月`;
             const first = new Date(y, m, 1).getDay(), days = new Date(y, m+1, 0).getDate();
             for(let i=0; i<first; i++) grid.innerHTML += `<div></div>`;
             for(let d=1; d<=days; d++) {
@@ -451,48 +444,33 @@
                 grid.innerHTML += `<div class="calendar-day ${new Date().toISOString().startsWith(dateStr)?'today':''}">
                     <div style="font-weight:700;">${d}</div>
                     ${dayTasks.map(t=>`<div class="cal-event" onclick="window.jumpToTask('${t.id}')">⌛ ${t.title}</div>`).join('')}
-                    ${hasCheckin ? `<div class="cal-event" style="background:#e3fcef;color:#00b894;">🏆 已坚持</div>` : ''}
+                    ${hasCheckin ? `<div class="cal-event" style="background:#e3fcef;color:#00b894;">🏆 已打卡</div>` : ''}
                 </div>`;
             }
         };
 
         // --- 数据操作实现 ---
-        document.getElementById('btnAuthAction').onclick = async () => {
-            const email = document.getElementById('authEmail').value.trim();
-            const pass = document.getElementById('authPassword').value.trim();
-            if(!email || !pass) return (document.getElementById('authError').innerText = "请输入账号密码");
-            try {
-                if(authMode === 'login') await signInWithEmailAndPassword(auth, email, pass);
-                else {
-                    const uCred = await createUserWithEmailAndPassword(auth, email, pass);
-                    await updateProfile(uCred.user, { displayName: email.split('@')[0] });
-                }
-            } catch (e) { document.getElementById('authError').innerText = e.message; }
-        };
-
         document.getElementById('confirmCatBtn').onclick = async () => {
-            const nameInput = document.getElementById('catNameInput');
-            const name = nameInput.value.trim();
+            const name = document.getElementById('catNameInput').value.trim();
             if(!name || !user) return;
             try {
                 await addDoc(collection(db, `artifacts/${appId}/users/${user.uid}/categories`), { name, createdAt: new Date().toISOString() });
-                nameInput.value = ""; window.closeModal('modalCat');
+                document.getElementById('catNameInput').value=""; 
+                window.closeModal('modalCat');
                 showToast("分类创建成功 ✨");
             } catch(e) { showToast("保存失败"); }
         };
 
         document.getElementById('saveTaskBtn').onclick = async () => {
             if(!user) return;
-            const titleInput = document.getElementById('taskTitleInput');
-            const title = titleInput.value.trim();
-            if(!title) return;
+            const title = document.getElementById('taskTitleInput').value.trim(); if(!title) return;
             const subs = Array.from(document.querySelectorAll('.st-input')).map(i => ({text:i.value, completed:false}));
             const type = document.getElementById('taskTypeInput').value;
             const data = { title, description: document.getElementById('taskDescInput').value, priority: document.getElementById('taskPriorityInput').value, type, deadline: document.getElementById('taskDeadlineInput').value, catId: activeCatId, status: 'pending', createdAt: new Date().toISOString(), subtasks: subs };
             try {
                 if(editingTid) await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, editingTid), data);
                 else await addDoc(collection(db, `artifacts/${appId}/users/${user.uid}/tasks`), data);
-                window.closeModal('modalTask');
+                window.closeModal('modalTask'); 
                 showToast("计划已更新 ✨");
             } catch(e) { showToast("保存失败"); }
         };
@@ -505,22 +483,20 @@
                 await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, checkinTid), { checkinCount: (t.checkinCount||0)+1, checkinLogs: log });
                 document.getElementById('checkinNoteInput').value = ''; 
                 window.closeModal('modalCheckin'); 
-                showToast("打卡成功！坚持真棒 🚀");
+                showToast("坚持真棒！记录已同步 🚀");
             } catch(e) { showToast("提交失败"); }
         };
 
         document.getElementById('saveNoteBtn').onclick = async () => {
-            const input = document.getElementById('noteInput');
-            const content = input.value.trim();
+            const content = document.getElementById('noteInput').value.trim();
             if(!content || !user) return;
             try {
                 await addDoc(collection(db, `artifacts/${appId}/users/${user.uid}/notes`), { content, createdAt: new Date().toISOString() });
-                input.value = ''; showToast("灵感随笔已同步云端 ✨");
-                window.renderNotesList();
+                document.getElementById('noteInput').value = ''; 
+                showToast("灵感随笔已存入时光机 ✨");
             } catch(e) { showToast("同步失败"); }
         };
 
-        // --- 逻辑控制 ---
         window.editTask = (tid) => {
             const t = tasks.find(x => x.id === tid); editingTid = tid; activeCatId = t.catId;
             document.getElementById('taskModalTitle').innerText = "编辑任务细节";
@@ -535,8 +511,24 @@
         };
 
         window.toggleDone = async (tid) => { if(!user) return; await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid), { status: 'done', completedAt: new Date().toISOString() }); showToast("目标达成！🏆"); };
-        window.deleteTask = async (tid) => { if(confirm("确定彻底删除计划？")) await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid)); };
+        window.deleteTask = async (tid) => { if(confirm("确定删除计划？")) await deleteDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid)); };
         window.toggleSubtask = async (tid, i) => { if(!user) return; const t = tasks.find(x => x.id===tid); const subs = [...t.subtasks]; subs[i].completed = !subs[i].completed; await updateDoc(doc(db, `artifacts/${appId}/users/${user.uid}/tasks`, tid), { subtasks: subs }); };
+
+        // --- 认证与同步 ---
+        document.getElementById('btnAuthAction').onclick = async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value.trim();
+            const errDiv = document.getElementById('authError');
+            if(!email || !pass) return (errDiv.innerText = "请输入账号密码");
+            errDiv.innerText = "开启时光隧道中...";
+            try {
+                if(authMode === 'login') await signInWithEmailAndPassword(auth, email, pass);
+                else {
+                    const uCred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await updateProfile(uCred.user, { displayName: email.split('@')[0] });
+                }
+            } catch (e) { errDiv.innerText = e.message; }
+        };
 
         onAuthStateChanged(auth, async (u) => {
             user = u;
@@ -572,30 +564,23 @@
         const startSync = () => {
             if (!user) return;
             const path = `artifacts/${appId}/users/${user.uid}`;
-            onSnapshot(collection(db, path, 'categories'), s => { categories = s.docs.map(d => ({id:d.id, ...d.data()})); renderTasks(); });
-            onSnapshot(collection(db, path, 'tasks'), s => { 
+            if(unsubscribeCats) unsubscribeCats();
+            unsubscribeCats = onSnapshot(collection(db, path, 'categories'), s => { categories = s.docs.map(d => ({id:d.id, ...d.data()})); renderTasks(); });
+            if(unsubscribeTasks) unsubscribeTasks();
+            unsubscribeTasks = onSnapshot(collection(db, path, 'tasks'), s => { 
                 tasks = s.docs.map(d => ({id:d.id, ...d.data()})); 
                 renderTasks(); updateStats(); renderCalendar();
                 if(!document.getElementById('panel-stats').classList.contains('hidden')) { window.renderChart(); window.renderCheckinDetail(); window.renderDoneDetail(); }
             });
         };
 
-        const updateStats = () => {
-            const ur = document.getElementById('countUrgent'), pe = document.getElementById('countPending'), doT = document.getElementById('countDone');
-            if(ur) ur.innerText = tasks.filter(t => t.priority==='p-urgent-important' && t.status!=='done').length;
-            if(pe) pe.innerText = tasks.filter(t => t.status!=='done').length;
-            if(doT) doT.innerText = tasks.filter(t => t.status==='done').length;
+        window.saveNickname = async () => {
+            const nn = document.getElementById('nicknameInput').value.trim(); if(!nn) return;
+            await updateProfile(auth.currentUser, { displayName: nn });
+            document.getElementById('userNickname').innerText = nn;
+            window.closeModal('modalProfile'); showToast("昵称已更新 ✨");
         };
-
-        const getCountdown = (d) => { if(!d) return ""; const diff = new Date(d) - new Date(); if(diff < 0) return "已过期"; const h = Math.floor(diff / 3600000); return h > 48 ? `剩 ${Math.floor(h/24)}天` : `剩 ${h}小时`; };
-
-        window.initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                try { await signInWithCustomToken(auth, __initial_auth_token); } catch(e) {}
-            }
-        };
-        window.initAuth();
-        window.openCheckin = (tid) => { checkinTid = tid; document.getElementById('checkinTTitle').innerText = tasks.find(x=>x.id===tid).title; window.openModal('modalCheckin'); };
+        document.getElementById('saveNicknameBtn').onclick = window.saveNickname;
         
         window.exportExcel = () => {
             let csv = "\ufeff分类,名称,优先级,日期,状态,详情\n";
@@ -604,7 +589,7 @@
                 else csv += `任务,${t.title},${t.priority},${t.status==='done'?t.completedAt:t.deadline||""},${t.status},"${(t.description||"").replace(/"/g,'""')}"\n`;
             });
             const b = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-            const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download="时光助手_备份.csv"; a.click();
+            const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download="时光助手数据备份.csv"; a.click();
         };
 
         window.exportWord = () => {
@@ -615,13 +600,22 @@
             const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href=u; a.download="成长报告.doc"; a.click();
         };
 
-        window.saveNickname = async () => {
-            const nn = document.getElementById('nicknameInput').value.trim(); if(!nn) return;
-            await updateProfile(auth.currentUser, { displayName: nn });
-            document.getElementById('userNickname').innerText = nn;
-            window.closeModal('modalProfile'); showToast("昵称已更新 ✨");
+        const updateStats = () => {
+            const ur = document.getElementById('countUrgent'), pe = document.getElementById('countPending'), doT = document.getElementById('countDone');
+            if(ur) ur.innerText = tasks.filter(t => t.priority==='p-urgent-important' && t.status!=='done').length;
+            if(pe) pe.innerText = tasks.filter(t => t.status!=='done').length;
+            if(doT) doT.innerText = tasks.filter(t => t.status==='done').length;
         };
-        document.getElementById('saveNicknameBtn').onclick = window.saveNickname;
+
+        const getCountdown = (d) => { if(!d) return ""; const diff = new Date(d) - new Date(); if(diff < 0) return "已截止"; const h = Math.floor(diff / 3600000); return h > 48 ? `剩 ${Math.floor(h/24)}天` : `剩 ${h}小时`; };
+
+        window.initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                try { await signInWithCustomToken(auth, __initial_auth_token); } catch(e) {}
+            }
+        };
+        window.initAuth();
+        window.openCheckin = (tid) => { checkinTid = tid; document.getElementById('checkinTTitle').innerText = tasks.find(x=>x.id===tid).title; window.openModal('modalCheckin'); };
     </script>
 </body>
 </html>
